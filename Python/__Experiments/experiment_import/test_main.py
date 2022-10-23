@@ -1,4 +1,10 @@
-""" Example of different methods of using the import statement and impact on the namespace """
+"""
+Demonstrate different methods of import and impact on the namespace
+
+Requires the pytest module
+    10/23/2022 - Refactored, documented, and moved to the examples directory
+
+"""
 
 import pytest
 
@@ -14,12 +20,12 @@ from import_star_example import *
 
 
 def test_import_without_from():
-    """ Calling import with no 'from' adds the module to the namespace """
+    """ Import without 'from' adds the module to the namespace """
     print(f"\n*** Namespace before calling import ***\n{dir()}")
     import math
     print(f"*** Namespace after calling import ***\n{dir()}")
 
-    # Access constants and methods by prefacing them with the module name
+    # Access constants and methods by prefixing them with the module name
     print(f"Accessing a constant in the module (math.pi): {math.pi}")
     print(f"Accessing a method in the module (math.sin): {math.sin(0)}")
 
@@ -28,7 +34,7 @@ def test_import_without_from():
 
 
 def test_import_with_from():
-    """ Calling import with 'from' adds specified methods/constants to namespace """
+    """ Import using 'from' adds specified methods/constants to namespace """
     print(f"\n*** Namespace before calling import ***\n{dir()}")
     from math import pi, sin
     print(f"*** Namespace after calling import ***\n{dir()}")
@@ -44,7 +50,7 @@ def test_import_with_from():
 
 def test_import_from_star():
     """
-    Using "from <module> import *" adds all methods/constantsto the global namespace
+    Using "from <module> import *" adds all methods/exports to the global namespace
             This is strongly discouraged because:
             - It pollutes the global namespace
             - Makes it difficult to determine the function origin when debugging
