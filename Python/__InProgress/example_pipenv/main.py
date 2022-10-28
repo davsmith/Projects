@@ -1,9 +1,9 @@
-""" Module doc string """
+"""Demonstrate use of a pipfile and environment variables"""
 import sys
 import os
 
 print(f"Python interpreter: {sys.executable}")
-print(f"Environment variables:")
+print("Environment variables:")
 for variable in os.environ:
     print(variable)
 print(" >>> " + os.environ["GIT_ASKPASS"])
