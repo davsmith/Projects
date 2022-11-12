@@ -1,2 +1,2 @@
-@REM cd \Source\Projects\<current project path>
-start code .
+pushd Python\_Tutorials\_Apps\pyqt_intro
+rem start code .

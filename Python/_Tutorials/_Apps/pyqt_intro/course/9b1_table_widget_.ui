@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Output from the Qt Designer
+  PyQt6 Course for Beginners - Parwiz Forogh (https://youtu.be/ot94H3-d5d8?t=5807)
+  Detailed notes: https://tinyurl.com/y5db3c5c
+
+  Related to:
+    - table_widget.py
+    - table_widget_gen.py
+
+  Concepts Introduced:
+    - Launching Qt Designer with: qt6-tools designer
+    - Instantiating a table control
+
+-->
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>716</width>
+    <height>354</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QTableWidget" name="tableWidget">
+     <row>
+      <property name="text">
+       <string>New Row</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>New Row</string>
+      </property>
+     </row>
+     <column>
+      <property name="text">
+       <string>FName</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>LName</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Email</string>
+      </property>
+     </column>
+     <item row="0" column="0">
+      <property name="text">
+       <string>Parwiz</string>
+      </property>
+     </item>
+     <item row="0" column="1">
+      <property name="text">
+       <string>Forogh</string>
+      </property>
+     </item>
+     <item row="0" column="2">
+      <property name="text">
+       <string>parwiz@somewhere.com</string>
+      </property>
+     </item>
+     <item row="1" column="0">
+      <property name="text">
+       <string>John</string>
+      </property>
+     </item>
+     <item row="1" column="1">
+      <property name="text">
+       <string>Doe</string>
+      </property>
+     </item>
+     <item row="1" column="2">
+      <property name="text">
+       <string>johndoe@somewhere.com</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

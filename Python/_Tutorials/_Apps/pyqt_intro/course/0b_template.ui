@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Output from the Qt Designer
+  PyQt6 Course for Beginners - Parwiz Forogh (https://youtu.be/ot94H3-d5d8?t=0)
+  Detailed notes: https://tinyurl.com/y5db3c5c
+
+  Related to:
+    - widget_class.py
+    - widget_load_ui.py
+    - widget_gen.py
+
+  Concepts Introduced:
+    - Launching Qt Designer with: qt6-tools designer
+    - Creating a new QWidget app
+    - Setting the background color with a style sheet
+    - Inserting a color from the Edit Style Sheet dialog
+    - Specifying a color with rgb(rrr, ggg, bbb) format
+
+-->
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Qt Designer Window</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+background-color: rgb(67, 67, 255)
+}</string>
+  </property>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

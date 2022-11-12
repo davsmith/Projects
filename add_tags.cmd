@@ -1,0 +1,1 @@
+%OneDriveConsumer%\settings\onenote_2016\set_topic_tags.reg
