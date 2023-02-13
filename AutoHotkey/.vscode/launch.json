@@ -5,11 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "ahk",
+            "name": "AutoHotkey Debug (Advanced Configuration)",
+            "type": "autohotkey",
             "request": "launch",
-            "name": "AutoHotkey Debugger",
             "program": "${file}",
-            "stopOnEntry": true
+            "args": [],
+            "port": "9002-9010",
+            "variableCategories": "recommend",
+            "useDebugDirective": true,
+            "useAutoJumpToError": true
         }
+
     ]
 }
