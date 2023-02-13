@@ -22,12 +22,51 @@
 /*
     Variables
 */
+; Variable type is set on assignment
 pi := "Set my value to a string"
-pi := 3.14
-OutputDebug "PI " . PI . " is the same as pi " . pi
+OutputDebug type(pi) . '`n'
 
+; Variable type is dynamic
+pi := 3.14
+OutputDebug type(pi) . '`n'
+
+; Variable names are not case sensitive
+OutputDebug "PI " . PI . " is the same as pi " . pi . "`n"
+
+
+/*
+    Hotkeys
+*/
 ^LButton::
 {
     MsgBox("You pressed the left button")
-    OutputDebug("Hello") 
-}       
+    OutputDebug("Hello`n") 
+}
+
+; Run Notepad CTRL+N is pressed
+^n::
+{
+    Run "notepad.exe"
+    return
+}
+
+; Copies currently selected text
+^b::
+{
+    Send "{Ctrl down}c{Ctrl up}"
+    SendInput "[b]{Ctrl down}v{Ctrl up}[/b]"
+    return
+}
+
+
+/*
+    Hotstrings
+*/
+; Replaces "btw" with "by the way" when ending character is typed
+::btw::by the way
+
+; Replaces "idk" with "I don't know" without requiring an ending character.
+:*:idk::I don't know
+
+/*
+*/
