@@ -43,8 +43,8 @@ OutputDebug "PI " . PI . " is the same as pi " . pi . "`n"
     OutputDebug("Hello`n") 
 }
 
-; Run Notepad CTRL+N is pressed
-^n::
+; Run Notepad CTRL+ALT+N is pressed
+^!n::
 {
     Run "notepad.exe"
     return
@@ -58,6 +58,23 @@ OutputDebug "PI " . PI . " is the same as pi " . pi . "`n"
     return
 }
 
+; Dynamically define/undefine a hotkey
+<^!d::
+{
+    Hotkey "^!z", MyFunc, "On"
+    MsgBox "Hotkey defined"
+}
+
+>^!d::
+{
+    Hotkey "^!z", "Off"
+    MsgBox "Hotkey undefined"
+}
+
+MyFunc(ThisHotkey)
+{
+    MsgBox "You pressed " ThisHotkey
+}
 
 /*
     Hotstrings
