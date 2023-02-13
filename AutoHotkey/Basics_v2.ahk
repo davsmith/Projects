@@ -11,7 +11,20 @@
 */
 #Requires AutoHotkey v2.0
 
+/*
+    Comments
 
+    Single line comments can be demarcated with a ;
+
+    Multi-line comments start with
+*/
+
+/*
+    Variables
+*/
+pi := "Set my value to a string"
+pi := 3.14
+OutputDebug "PI " . PI . " is the same as pi " . pi
 
 ^LButton::
 {
