@@ -50,8 +50,8 @@ OutputDebug "PI " . PI . " is the same as pi " . pi . "`n"
     return
 }
 
-; Copies currently selected text
-^b::
+; Copies currently selected text and wraps it in formatting tags
+<^b::
 {
     Send "{Ctrl down}c{Ctrl up}"
     SendInput "[b]{Ctrl down}v{Ctrl up}[/b]"
@@ -84,6 +84,24 @@ MyFunc(ThisHotkey)
 
 ; Replaces "idk" with "I don't know" without requiring an ending character.
 :*:idk::I don't know
+
+; Runs a code block
+::mujiber::
+{
+    MsgBox "You typed Mujiber"
+}
+
+; Case sensitive, and don't replace the string
+:CB0:Serajoul::
+{
+    OutputDebug "You typed a proper name"
+}
+
+; Scope the hotkeys/hotstrings to an app
+MyWindowTitle := "Basics"
+#HotIf WinActive("ahk_class Notepad") or WinActive(MyWindowTitle) or WinActive("ahk_exe OneNote.exe")
+#Space::MsgBox "You pressed Win+Spacebar in Notepad, OneNote or " MyWindowTitle
+
 
 /*
 */
