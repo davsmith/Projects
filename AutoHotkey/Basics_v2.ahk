@@ -37,6 +37,16 @@ OutputDebug "PI " . PI . " is the same as pi " . pi . "`n"
 /*
     Hotkeys
 */
+^!o::
+{
+    if WinExist("ahk_class OneNote.exe")
+    {
+        WinActivate ; Use the window found by WinExist.
+    } else {
+        Run "onenote.exe"
+    }
+}
+
 ^LButton::
 {
     MsgBox("You pressed the left button")
@@ -100,7 +110,13 @@ MyFunc(ThisHotkey)
 ; Scope the hotkeys/hotstrings to an app
 MyWindowTitle := "Basics"
 #HotIf WinActive("ahk_class Notepad") or WinActive(MyWindowTitle) or WinActive("ahk_exe OneNote.exe")
-#Space::MsgBox "You pressed Win+Spacebar in Notepad, OneNote or " MyWindowTitle
+    #Space::MsgBox "You pressed Win+Spacebar in Notepad, OneNote or " MyWindowTitle
+
+    ^!s::
+    {
+        MsgBox(StatusBarGetText(2,"A"))
+    }
+
 
 
 /*
