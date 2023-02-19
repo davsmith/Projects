@@ -22,6 +22,7 @@
 /*
     Variables
 */
+//#region
 ; Variable type is set on assignment
 pi := "Set my value to a string"
 OutputDebug type(pi) . '`n'
@@ -32,7 +33,7 @@ OutputDebug type(pi) . '`n'
 
 ; Variable names are not case sensitive
 OutputDebug "PI " . PI . " is the same as pi " . pi . "`n"
-
+//#endregion
 
 /*
     Hotkeys
@@ -117,6 +118,10 @@ MyWindowTitle := "Basics"
         MsgBox(StatusBarGetText(2,"A"))
     }
 
+    ^!t::
+    {
+        WinSetTransparent(128)
+    }
 
 
 /*
