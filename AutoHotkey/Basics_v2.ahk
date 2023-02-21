@@ -11,81 +11,136 @@
 */
 #Requires AutoHotkey v2.0
 
-/*
+::_comments::
+{
+    /*
     Comments
 
     Single line comments can be demarcated with a ;
 
     Multi-line comments start with
-*/
+    */
+}
 
-/*
-    Variables
-*/
-//#region
-; Variable type is set on assignment
-pi := "Set my value to a string"
-OutputDebug type(pi) . '`n'
-
-; Variable type is dynamic
-pi := 3.14
-OutputDebug type(pi) . '`n'
-
-; Variable names are not case sensitive
-OutputDebug "PI " . PI . " is the same as pi " . pi . "`n"
-//#endregion
-
-/*
-    Hotkeys
-*/
-^!o::
+::_variables::
 {
-    if WinExist("ahk_class OneNote.exe")
+    /*
+        Variables do not need to be declared and are dynamically typed
+    */
+
+    ; Variable type is set on assignment
+    pi := "Set my value to a string"
+    OutputDebug type(pi) . '`n'
+
+    ; Variable type is dynamic
+    pi := 3.14
+    OutputDebug type(pi) . '`n'
+
+    ; Variable names are not case sensitive
+    OutputDebug "PI " . PI . " is the same as pi " . pi . "`n"
+}
+
+::_hotkeys::
+{
+    /*
+        Hotkeys definitions start with key combination (including modifiers)
+        followed by ::, and a code block (enclosed in {} )
+
+        The examples below are commented out since hotkey definitions can't be
+        included within other code blocks (the _hotkeys section).  Copy them
+        outside the code block to make them active
+    
+    ^!o::
     {
-        WinActivate ; Use the window found by WinExist.
-    } else {
-        Run "onenote.exe"
+        MsgBox("<ctrl><alt>o")
     }
+
+    ^LButton::
+    {
+        MsgBox("<ctrl><Left mouse button>")
+    }
+
+    <^b::
+    {
+        MsgBox("<left ctrl>b")
+    }
+
+    >^b::
+    {
+        MsgBox("<right ctrl>b")
+    }
+
+    >+r::
+    {
+        MsgBox("<right shift>r")
+    }
+
+    ; Dynamically define/undefine a hotkey
+    <^!d::
+    {
+        Hotkey "^!z", MyFunc, "On"
+        MsgBox "Hotkey defined"
+    }
+
+    >^!d::
+    {
+        Hotkey "^!z", "Off"
+        MsgBox "Hotkey undefined"
+    }
+
+    */
 }
 
-^LButton::
-{
-    MsgBox("You pressed the left button")
-    OutputDebug("Hello`n") 
-}
 
-; Run Notepad CTRL+ALT+N is pressed
-^!n::
-{
-    Run "notepad.exe"
-    return
-}
+    ^!o::
+    {
+        if WinExist("ahk_class OneNote.exe")
+        {
+            WinActivate ; Use the window found by WinExist.
+        } else {
+            Run "onenote.exe"
+        }
+    }
 
-; Copies currently selected text and wraps it in formatting tags
-<^b::
-{
-    Send "{Ctrl down}c{Ctrl up}"
-    SendInput "[b]{Ctrl down}v{Ctrl up}[/b]"
-    return
-}
+    ^LButton::
+    {
+        MsgBox("You pressed the left button")
+        OutputDebug("Hello`n") 
+    }
 
-; Dynamically define/undefine a hotkey
-<^!d::
-{
-    Hotkey "^!z", MyFunc, "On"
-    MsgBox "Hotkey defined"
-}
+    ; Run Notepad CTRL+ALT+N is pressed
+    ^!n::
+    {
+        Run "notepad.exe"
+        return
+    }
 
->^!d::
-{
-    Hotkey "^!z", "Off"
-    MsgBox "Hotkey undefined"
-}
+    ; Copies currently selected text and wraps it in formatting tags
+    <^b::
+    {
+        Send "{Ctrl down}c{Ctrl up}"
+        SendInput "[b]{Ctrl down}v{Ctrl up}[/b]"
+        return
+    }
 
-MyFunc(ThisHotkey)
-{
-    MsgBox "You pressed " ThisHotkey
-}
+    ; Dynamically define/undefine a hotkey
+    <^!d::
+    {
+        Hotkey "^!z", MyFunc, "On"
+        MsgBox "Hotkey defined"
+    }
+
+    >^!d::
+    {
+        Hotkey "^!z", "Off"
+        MsgBox "Hotkey undefined"
+    }
+
+    MyFunc(ThisHotkey)
+    {
+        MsgBox "You pressed " ThisHotkey
+    }
+
 
 /*
     Hotstrings
