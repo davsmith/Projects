@@ -91,93 +91,145 @@
     */
 }
 
+::_hotstrings::
+{
+    /*
+    ; Replaces "btw" with "by the way" when an ending character is typed
+    ::btw::by the way
 
-    ^!o::
+    ; Replaces "idk" with "I don't know" without requiring an ending character.
+    :*:idk::I don't know
+
+    ; Runs a code block
+    ::mujiber::
     {
-        if WinExist("ahk_class OneNote.exe")
+        MsgBox "You typed Mujiber or mujiber"
+    }
+
+    ; Case sensitive, and don't replace the string
+    :CB0:Serajoul::
+    {
+        OutputDebug "You typed a properly capitalized name"
+    }
+
+    ; Scope the hotkeys/hotstrings to an app
+    MyWindowTitle := "Basics"
+    #HotIf WinActive("ahk_class Notepad") or WinActive("ahk_exe OneNote.exe") or WinActive(MyWindowTitle) 
+        #Space::MsgBox "You pressed Win+Spacebar in Notepad, OneNote or " MyWindowTitle
+    */
+}
+
+::_conditionals::
+{
+    ; True and False are defined as constants for readability
+    ; Variables/constants are not case sensitive
+    if (true)
+    {
+        OutputDebug("True is defined as " . true . "`n")
+    }
+
+    if (not false)
+    {
+        OutputDebug("False is defined as " . false . "`n")
+    }
+
+    ; Empty strings and 0 are considered False
+    ; Everything else (including objects) are True
+    if (not "")
+    {
+        OutputDebug("An emptry string is False`n")
+    }
+
+    ; The = is used for comparison
+    ; if, else, and else if can be used for multiple compares
+    color := "Blue"
+    ; color := "Silver"
+    ; color := "Pink"
+
+    if (color = "Blue" or color = "White")
+    {
+        OutputDebug color . " is one of the allowed values.`n"
+        ExitApp
+    }
+    else if (color = "Silver")
+    {
+        OutputDebug "Silver is not an allowed color.`n"
+        return
+    }
+    else
+    {
+        OutputDebug color . " is not recognized.`n"
+        ExitApp
+    }
+}
+
+::_loops::
+{
+    ; The loop statement is used for traditional For...Next operations
+    ; Rather than providing an index variable A_Index is used
+    loop 10
+    {
+        OutputDebug(a_index '`n')
+    }
+
+    ; As of Feb 22, 2023 I can't find a cleaner method for nested loops than...
+    loop 2
+    {
+        i := a_index
+        loop 3
         {
-            WinActivate ; Use the window found by WinExist.
-        } else {
-            Run "onenote.exe"
+            j := a_index
+            OutputDebug('(' i ',' j ')`n')
         }
     }
 
-    ^LButton::
-    {
-        MsgBox("You pressed the left button")
-        OutputDebug("Hello`n") 
-    }
-
-    ; Run Notepad CTRL+ALT+N is pressed
-    ^!n::
-    {
-        Run "notepad.exe"
-        return
-    }
-
-    ; Copies currently selected text and wraps it in formatting tags
-    <^b::
-    {
-        Send "{Ctrl down}c{Ctrl up}"
-        SendInput "[b]{Ctrl down}v{Ctrl up}[/b]"
-        return
-    }
-
-    ; Dynamically define/undefine a hotkey
-    <^!d::
-    {
-        Hotkey "^!z", MyFunc, "On"
-        MsgBox "Hotkey defined"
-    }
-
-    >^!d::
-    {
-        Hotkey "^!z", "Off"
-        MsgBox "Hotkey undefined"
-    }
-
-    MyFunc(ThisHotkey)
-    {
-        MsgBox "You pressed " ThisHotkey
-    }
-
-
-/*
-    Hotstrings
-*/
-; Replaces "btw" with "by the way" when ending character is typed
-::btw::by the way
-
-; Replaces "idk" with "I don't know" without requiring an ending character.
-:*:idk::I don't know
-
-; Runs a code block
-::mujiber::
-{
-    MsgBox "You typed Mujiber"
+    ; For is  used to enumerate key/value pairs (foreach)
+    colours := {red: 0xFF0000, blue: 0x0000FF, green: 0x00FF00}
+    for k, v in colours.OwnProps()
+        s .= k '=' v '`n'
+    
+    OutputDebug(s . "`n")
 }
 
-; Case sensitive, and don't replace the string
-:CB0:Serajoul::
+::_strings::
 {
-    OutputDebug "You typed a proper name"
+    ; Use `n to indicate a newline
+    OutputDebug("Hello`nthere`nBob`n")
+
+    ; .= is shorthand to append to a string
+    greeting := "Hello "
+    greeting .= "Bob`n"
+    OutputDebug(greeting)
+
+    ; Use the Format function to manipulate strings
+    ;
+    ; Full details about Format can be found at:
+    ; https://www.autohotkey.com/docs/v2/lib/Format.htm
+    ;
+    ; Build a multiline string to display in a window
+    ;
+    s := ""
+
+    ; Substitute parameters by specifying indicies (order is swapped)
+    s .= Format("{2}, {1}!`r`n", "World", "Hello")
+
+    ; Padding with spaces (no order is specified so default is used)
+    s .= Format("|{:-10}|`r`n|{:10}|`r`n", "Left", "Right")
+
+    ; Hexadecimal (leading 0x, lower-case letters; upper-case letters, and fixed width)
+    s .= Format("{1:#x} {2:X} 0x{3:02x}`r`n", 3735928559, 195948557, 0)
+
+    ; Floating-point
+    s .= Format("{1:0.3f} {1:.10f}", 4*ATan(1))
+
+    displayStringInWindow(s)
 }
 
-; Scope the hotkeys/hotstrings to an app
-MyWindowTitle := "Basics"
-#HotIf WinActive("ahk_class Notepad") or WinActive(MyWindowTitle) or WinActive("ahk_exe OneNote.exe")
-    #Space::MsgBox "You pressed Win+Spacebar in Notepad, OneNote or " MyWindowTitle
+displayStringInWindow(str)
+{
 
-    ^!s::
-    {
-        MsgBox(StatusBarGetText(2,"A"))
-    }
-
-    ^!t::
-    {
-        WinSetTransparent(128)
-    }
-
-
-/*
-*/
+    ListVars  ; Use AutoHotkey's main window to display monospaced text.
+    WinWaitActive "ahk_class AutoHotkey"
+    ControlSetText(str, "Edit1")
+    WinWaitClose
+}
