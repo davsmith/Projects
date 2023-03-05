@@ -95,3 +95,9 @@ MyWindowTitle := "Basics"
     {
         WinSetTransparent(128)
     }
+
+#HotIf
+::_beep::
+{
+    SoundBeep(7500, 500)
+}

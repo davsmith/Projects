@@ -223,6 +223,9 @@
     displayStringInWindow(s)
 }
 
+;
+; Functions
+;
 displayStringInWindow(str)
 {
 
