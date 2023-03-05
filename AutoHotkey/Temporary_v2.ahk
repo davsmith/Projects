@@ -67,6 +67,26 @@ MButton::
 }
 
 
+#HotIf WinActive("ahk_exe powerpnt.exe")
+^!t::
+{
+    SendMode("event")
+    SetKeyDelay(200)
+    OutputDebug("Aligning top")
+    MouseMove(1425, 115)
+    Click
+    Send("t")
+}
+
+^!b::
+{
+    ; In Office use lower case letters with Send
+    OutputDebug("Starting align top`n")
+    Send("!jd")
+    Send("aat")
+    OutputDebug("Ending align top`n")
+}
+
 
 #HotIf
 ^j::
@@ -75,5 +95,32 @@ MButton::
     MsgBox msgString
 }
 
- 
+^!m::
+{
+    ; Moves the mouse and clicks at the specified coordinates
+    ; relative to the client (see Window Spy)
+    Click(0, 0)
+}
 
+^!r::
+{
+    ; Use the keyword "Relative" to make coordinates
+    ; relative to the current mouse position
+    Click(-20, -20, "Relative")
+}
+
+::_h2::
+{
+    Send "Hello`n"
+}
+
+::_tt::
+{
+    Loop
+    {
+        Sleep 100
+        MouseGetPos(&xpos, &ypos, &WhichWindow, &WhichControl)
+        try ControlGetPos(&x, &y, &w, &h, WhichControl, WhichWindow)
+        ToolTip(WhichControl "`nX" x "`tY" y "`nW" w "`t" h)
+    }
+}
