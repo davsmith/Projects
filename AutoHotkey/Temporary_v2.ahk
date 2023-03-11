@@ -1,8 +1,4 @@
 ﻿#Requires AutoHotkey v2.0
-#SingleInstance
-; #include "c:\temp\"
-; #include "templib.ahk"
-; #include "templib2.ahk"
 
 ::_r::
 {
@@ -24,6 +20,22 @@ str := "Hello there"
     Send "consolas{enter}"
     Send "!hfs"
     Send "10.5{enter}"
+}
+
+^!f::
+{
+    OutputDebug("Send mode: " A_SendMode)
+    SendMode "Event"
+    SetKeyDelay 100
+    Send ("^k")
+    Send ("!e")
+    Send ("^c")
+    OutputDebug("Source: " . a_clipboard . "`n")
+    v2_string := StrReplace(a_clipboard, "v1", "v2")
+    OutputDebug("Target: " . v2_string . "`n")
+    a_clipboard := v2_string
+    Send ("^v")
+    OutputDebug("Pasted " . a_clipboard . "`n")
 }
 
 MButton::
