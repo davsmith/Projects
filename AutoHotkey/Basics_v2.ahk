@@ -24,9 +24,7 @@
 
 ::_variables::
 {
-    /*
-        Variables do not need to be declared and are dynamically typed
-    */
+    ; Variables do not need to be declared and are dynamically typed
 
     ; Variable type is set on assignment
     pi := "Set my value to a string"
