@@ -1,4 +1,4 @@
-// Order of queries for Budget (Current Version) as of March 25, 2023
+// Order of queries for Budget (Current Year) - Source.xlsm as of 3/26/2023
 //
 // Get Transactions CSV
 // Get Projected table
@@ -17,7 +17,8 @@
 ////////////////////////////////////////////////////////////////////////
 // Get Transactions CSV
 ////////////////////////////////////////////////////////////////////////
-//
+// Get Transactions CSV
+
 // Import the Transactions.csv file from Mint and transform into a Transactions table with
 // Date:    The date of the Transaction
 // Description: Typically the Payee for the Transaction
@@ -45,7 +46,8 @@ let
     #"Remove Blank Rows" = Table.SelectRows(#"Rename columns", each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null})))
 in
     #"Remove Blank Rows"
-    
+
+
 
 ////////////////////////////////////////////////////////////////////////
 // Get Projected table
@@ -61,15 +63,16 @@ in
     #"Removed Blank Rows"
 
 
+
 ////////////////////////////////////////////////////////////////////////
 // Get Categories table
 ////////////////////////////////////////////////////////////////////////
-//
 let
     Source = Excel.CurrentWorkbook(){[Name="tblCategories"]}[Content],
     #"Changed Type" = Table.TransformColumnTypes(Source,{{"Category", type text}, {"Parent", type text}, {"Type", type text}})
 in
     #"Changed Type"
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -80,6 +83,7 @@ let
     #"Changed Type" = Table.TransformColumnTypes(Source,{{"Mint", type text}, {"Friendly Name", type text}})
 in
     #"Changed Type"
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -94,10 +98,10 @@ in
     Source
 
 
+
 ////////////////////////////////////////////////////////////////////////
 // Add Subcategories
 ////////////////////////////////////////////////////////////////////////
-//
 // Retrieve the subcategories which were manually entered into the "Notes" field in Mint.
 //
 // The notation is to flag subgategories between # symbols and delimit between sub-categories with |
@@ -114,6 +118,7 @@ in
     #"Capitalized Each Word"
 
 
+
 ////////////////////////////////////////////////////////////////////////
 // Merge fields from Categories
 ////////////////////////////////////////////////////////////////////////
@@ -128,8 +133,9 @@ let
     #"Reorder columns" = Table.ReorderColumns(#"Duplicate parent column",{"Account Name", "Date", "Amount", "Description", "Original Description", "Category", "Subcategory.1", "Subcategory.2", "Subcategory.3", "Subcategory.4", "Subcategory.5", "Labels", "Memo", "Parent", "Parent.1", "Category.1", "Type", "Discretionary", "Frequency"})
 in
     #"Reorder columns"
-    
-  
+
+
+
 ////////////////////////////////////////////////////////////////////////
 // Merge fields from Payees
 ////////////////////////////////////////////////////////////////////////
@@ -144,6 +150,7 @@ in
     #"Capitalized Each Word"
 
 
+
 ////////////////////////////////////////////////////////////////////////
 // Set Format Type
 ////////////////////////////////////////////////////////////////////////
@@ -155,6 +162,7 @@ in
     #"Renamed Columns"
 
 
+
 ////////////////////////////////////////////////////////////////////////
 // Get Tax Parents
 ////////////////////////////////////////////////////////////////////////
@@ -163,6 +171,7 @@ let
     #"Changed Type" = Table.TransformColumnTypes(Source,{{"Category", type text}, {"Tax Parent", type text}})
 in
     #"Changed Type"
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -177,6 +186,7 @@ in
     #"Filtered Rows"
 
 
+
 ////////////////////////////////////////////////////////////////////////
 // List Unknown Categories
 ////////////////////////////////////////////////////////////////////////
@@ -187,3 +197,6 @@ let
     #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns")
 in
     #"Removed Duplicates"
+
+
+
