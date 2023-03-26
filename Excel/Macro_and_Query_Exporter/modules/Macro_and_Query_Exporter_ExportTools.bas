@@ -14,8 +14,6 @@ Sub main()
     Dim wb As Workbook
     Dim export_path As String
     
-'    export_path = Range("cExportPath").value
-'    Debug.Print export_path
     export_path = ""
     
     For Each wb In Application.Workbooks
@@ -44,12 +42,13 @@ Sub ExportQueries(wb As Workbook, Optional ByVal export_path As String = "", Opt
     End If
     
     current_date = Now
+    
+    export_path = export_path + "\queries"
             
     Set query_list = wb.Queries
     If query_list.Count > 0 Then
-        export_path = export_path + "\queries"
-        CreateFolderPathEx (export_path)
         n = FreeFile()
+        CreateFolderPathEx (export_path)
         Open export_path + "\" + GetBaseName(wb.Name) + "_queries.txt" For Output As #n
         
         Print #n, "// Order of queries for " + wb.Name + " as of " + FormatDateTime(current_date, vbShortDate)
@@ -141,8 +140,6 @@ Public Function ExportVBComponent(vbcomp As VBIDE.VBComponent, _
         End If
     End If
     
-    CreateFolderPathEx (FolderName)
-    
     ' Append a backslash to the end of the path if necessary
     If StrComp(Right(FolderName, 1), "\", vbBinaryCompare) = 0 Then
         FName = FolderName & FName
@@ -159,6 +156,7 @@ Public Function ExportVBComponent(vbcomp As VBIDE.VBComponent, _
         End If
     End If
     
+    CreateFolderPathEx (FolderName)
     vbcomp.Export filename:=FName
     ExportVBComponent = True
     

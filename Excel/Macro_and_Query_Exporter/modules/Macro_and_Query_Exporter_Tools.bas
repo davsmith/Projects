@@ -3,14 +3,19 @@ Attribute VB_Name = "Tools"
 '* Excel Macro Tools
 '*
 '* 3/26/2023:
-'*  - Added PtrSafe to declarations of functions that use OS functionality (for 64 bit)
+'*  - Checked in most up-to-date version of tools.bas
+'*  - Mostly capitalization changes, with a few bullets added under 12/9/2015
 '*  - Added OneDrive section
 '*  - Added IsRemotePath function
+
 '*
 '* 12/9/2015:
 '*  - Added FileExists
 '*  - Added ReadFileToString
 '*  - Modified Between to take a parameter to allow/reject partial matches.
+'*  - Added PtrSafe to OS calls to make 64-bit compliant
+'*  - Changed FSO to generic object instead of FileSystemObject
+'*  - Added WriteStringToFile
 '*
 '* 12/28/2013:
 '*  - Added GetLetterFromIndex
@@ -275,7 +280,7 @@ Function RenameSheet(FromSheet As String, ToSheet As String, Optional Displace A
     On Error Resume Next
         Sheets(FromSheet).Name = ToSheet
         nError = Err.Number
-        sError = Err.Description
+        sError = Err.description
     On Error GoTo 0
     
     If (nError = 0) Then
@@ -849,7 +854,7 @@ Function ColumnFromHeading(ColHeading As Variant)
     
     Set rgHeader = Range("1:1")
     For i = 1 To ActiveSheet.UsedRange.Columns.Count
-        If rgHeader.Cells(1, i).value = ColHeading Then
+        If rgHeader.Cells(1, i).Value = ColHeading Then
             ColumnFromHeading = i
             Exit For
         End If
@@ -903,7 +908,7 @@ Function GetColumnByHeading(szHeading As String, Optional rngData As Range, Opti
             rngData.Cells(nRow, nInsertAt).EntireColumn.Insert (xlToRight)
             Set rngEnd = rngData.Cells(1, nInsertAt)
         End If
-        rngEnd.Cells(1, 1).value = szHeading
+        rngEnd.Cells(1, 1).Value = szHeading
         nColumn = rngEnd.Column
     End If
     
@@ -940,7 +945,7 @@ Function FindValueFromHeading(strColLabel As String, rngHeadings As Range, rngDa
     
     On Error Resume Next
     nResultCol = Application.WorksheetFunction.match(strColLabel, rngHeadings, 0)
-    FindValueFromHeading = rngDataRow.Cells(, nResultCol).value
+    FindValueFromHeading = rngDataRow.Cells(, nResultCol).Value
     On Error GoTo 0
 
 End Function
@@ -1011,7 +1016,7 @@ Sub FillZeros(rngFillRange As Range)
     
     For Each rCell In rngFillRange
         If (IsEmpty(rCell)) Then
-            rCell.value = 0
+            rCell.Value = 0
         End If
     Next
 End Sub
@@ -1027,7 +1032,7 @@ Dim t As Variant
     On Error Resume Next
     
     Err.Clear
-    t = obj.value
+    t = obj.Value
     If (Err <> 0) Then
         IsNothing = True
         Err.Clear
@@ -1056,7 +1061,7 @@ Sub AdjustDates(rngRange As Range, fHours As Double)
         For j = 1 To rngRange.Columns.Count
             Set cell = rngRange.Cells(i, j)
             If IsDate(cell) Then
-                cell.value = cell.value + (fHours / 24)
+                cell.Value = cell.Value + (fHours / 24)
             End If
         Next
     Next
@@ -1077,7 +1082,7 @@ Sub TruncateDates(rngRange As Range)
         For j = 1 To rngRange.Columns.Count
             Set cell = rngRange.Cells(i, j)
             If IsDate(cell) Then
-                cell.value = Int(cell.value)
+                cell.Value = Int(cell.Value)
             End If
         Next
     Next
@@ -1127,7 +1132,7 @@ Function NumberOfLines(sFile As String) As Double
         If Err.Number > 0 Then
             NumberOfLines = 0
         Else
-            NumberOfLines = f.Line
+            NumberOfLines = f.line
             f.Close
             Set f = Nothing
         End If
@@ -1147,7 +1152,7 @@ Function CreateFolderPathEx(strPath As String) As Boolean
     Dim i As Integer
     Dim strNode As String
     Dim strParent As String
-    Dim fso As FileSystemObject
+    Dim fso As Object 'FileSystemObject
     Dim bRetVal As Boolean
     
     Set fso = CreateObject("Scripting.FileSystemObject")
@@ -1179,7 +1184,7 @@ Sub DeleteFileList(rngFileList As Range, Optional bDelDirs As Boolean = False)
     Set fso = CreateObject("Scripting.FileSystemObject")
     
     For Each cell In rngFileList
-        strFile = cell.value
+        strFile = cell.Value
         If fso.FolderExists(strFile) Then
             If bDelDirs Then
                 Debug.Print ("Deleting folder " + strFile)
@@ -1325,7 +1330,7 @@ Function GetTempFile() As String
 End Function
 
 
-Function FileExists(filename As String)
+Function FileExists(filename As String, Optional attributes As Long)
     Dim retVal As Boolean
     Dim path As String
     
@@ -1334,7 +1339,7 @@ Function FileExists(filename As String)
     ' Suppress errors from the dir function in case
     ' the input string is not a path (which errors out with File Not Found)
     On Error Resume Next
-    path = Dir$(filename)
+    path = Dir$(filename, attributes)
     On Error GoTo 0
     
     If Len(path) > 0 Then
@@ -1344,9 +1349,24 @@ Function FileExists(filename As String)
     FileExists = retVal
 End Function
 
+Sub WriteStringToFile(filename As String, line As String, Optional append As Boolean = False)
+    Dim fileNum As Integer
+ 
+    ' Open file for output
+    fileNum = FreeFile()
+    
+    If (append) Then
+        Open filename For Append As fileNum
+    Else
+        Open filename For Output As fileNum
+    End If
+ 
+    Write #fileNum, line
+    Close #fileNum
+ End Sub
 
 Function ReadFileToString(filename As String) As String
-    Dim filenum As Integer
+    Dim fileNum As Integer
     Dim oneLine As String
     Dim wholeFile As String
 
@@ -1358,13 +1378,13 @@ Function ReadFileToString(filename As String) As String
         GoTo EXIT_READFILETOSTRING
     End If
 
-    filenum = FreeFile()
-    Open filename For Input As filenum
+    fileNum = FreeFile()
+    Open filename For Input As fileNum
 
     ' Concatenate all lines in the file to one string
     ' Line Input removes the CR/LF, so add it back.
-    Do While Not EOF(filenum)
-        Line Input #filenum, oneLine
+    Do While Not EOF(fileNum)
+        Line Input #fileNum, oneLine
         Debug.Print oneLine
         wholeFile = wholeFile + oneLine + Chr(13) + Chr(10)
     Loop
@@ -1373,7 +1393,7 @@ Function ReadFileToString(filename As String) As String
     wholeFile = Left(wholeFile, Len(wholeFile) - 2)
 
     ' Close the file
-    Close filenum
+    Close fileNum
     ReadFileToString = wholeFile
 
 EXIT_READFILETOSTRING:
@@ -1537,7 +1557,7 @@ Sub GetUniqueItems(szUnique() As String, rngToSearch As Range, _
         strSearchVal = ""
         For j = 1 To nNumColumns
             If Not IsEmpty(cell) Then
-                strSearchVal = strSearchVal + strDelimiter + CStr(cell.Offset(0, j - 1).value)
+                strSearchVal = strSearchVal + strDelimiter + CStr(cell.Offset(0, j - 1).Value)
             End If
         Next
     
@@ -1595,7 +1615,7 @@ Function Interpolate(rngData As Range, nInterval As Integer) As Double
         nRetVal = 0#
     Else
         nRangesize = Application.WorksheetFunction.max(rngData.Rows.Count, rngData.Columns.Count)               ' Figure out the number of cells in the range
-        nIncrement = (rngData(rngData.Rows.Count, rngData.Columns.Count).value - rngData(1, 1)) / nRangesize    ' Calculate the increment to provide a linear progression
+        nIncrement = (rngData(rngData.Rows.Count, rngData.Columns.Count).Value - rngData(1, 1)) / nRangesize    ' Calculate the increment to provide a linear progression
         nRetVal = rngData(1, 1) + (nInterval * nIncrement)                                                      ' Return the next value in the seriesw
     End If
     
@@ -1636,13 +1656,13 @@ Sub InterpolateSelectedColumn()
     ' Calculate the increment
     nNumRows = nEndRow - nStartRow
     
-    nFirstVal = rng.Cells(1, 1).value
-    nLastVal = rng.Cells(rng.Rows.Count, 1).value
+    nFirstVal = rng.Cells(1, 1).Value
+    nLastVal = rng.Cells(rng.Rows.Count, 1).Value
     fIncrement = (nLastVal - nFirstVal) / (nNumRows)
     
     Set rngCell = rng.Cells(1, 1).Offset(1, 0)
     While rngCell.Row < nEndRow
-        rngCell.value = rngCell.Offset(-1, 0) + fIncrement
+        rngCell.Value = rngCell.Offset(-1, 0) + fIncrement
         Set rngCell = rngCell.Offset(1, 0)
     Wend
 End Sub
@@ -1712,9 +1732,9 @@ Attribute SplitOnSemicolon.VB_ProcData.VB_Invoke_Func = "w\n14"
     Dim i As Long
     Dim strTokens() As String
     
-    n = Tokenize(ActiveCell.value, ";", strTokens)
+    n = Tokenize(ActiveCell.Value, ";", strTokens)
     For i = 1 To n
-        ActiveCell.Offset(i, 0).value = strTokens(i)
+        ActiveCell.Offset(i, 0).Value = strTokens(i)
     Next
 End Sub
 
@@ -1791,7 +1811,8 @@ End Function
 ' Modifed 12/9/15 to return the whole string if the start or end tokens
 ' are not found, and partialMatch is set to false.
 '
-Function Between(szString As String, szSubStrStart As String, szSubStrEnd As String, Optional partialMatch As Boolean = True) As String
+Public Function Between(szString As String, szSubStrStart As String, szSubStrEnd As String, Optional partialMatch As Boolean = True) As String
+Attribute Between.VB_Description = "Returns the substring of string between start and end"
     Dim nStartIndex As Long
     Dim nEndIndex As Long
     Dim szReturnVal As String
@@ -2089,7 +2110,7 @@ Sub BubbleSort(ByRef TempArray As Variant)
         NoExchanges = True
 
         ' Loop through each element in the array.
-        For i = 0 To UBound(TempArray) - 1
+        For i = LBound(TempArray) To UBound(TempArray) - 1
 
             ' If the element is greater than the element
             ' following it, exchange the two elements.
@@ -2098,7 +2119,7 @@ Sub BubbleSort(ByRef TempArray As Variant)
                 temp = TempArray(i)
                 TempArray(i) = TempArray(i + 1)
                 TempArray(i + 1) = temp
-            End If
+                                       End If
         Next i
     Loop While Not (NoExchanges)
 End Sub
@@ -2396,7 +2417,7 @@ End Function
 '   Microsoft Internet Controls library (ieframe.dll)
 '
 '
-Sub Test()
+Sub test()
     Dim strFile As String
     Dim strURL As String
     Dim strText As String
@@ -2610,6 +2631,15 @@ End Sub
 '
 ' MakePivot Macro
 '
+
+' Creates a new pivot table from the specified source in the destination
+' Row, column, and filter fields can be specified by adding the field names to the respective collection
+'  and passing to the MakePivot function
+' The value fields are also passed as a collection, but the operator must
+'  be part of the string (e.g. Sum or amount)
+'
+' The function returns a reference to the new pivot table
+'
 Function MakePivot(rngSrcData As Range, rngPivotDest As Range, strPivotName As String, _
                 Optional colColFields As Collection, Optional colRowFields As Collection, _
                 Optional colFilterFields As Collection, Optional colSumFields As Collection) As PivotTable
@@ -2638,24 +2668,24 @@ Function MakePivot(rngSrcData As Range, rngPivotDest As Range, strPivotName As S
             pvt.PivotFields(colRowFields.Item(n)).Orientation = xlRowField
         Next
     End If
-    
+
     If (Not colColFields Is Nothing) Then
         For n = 1 To colColFields.Count
             pvt.PivotFields(colColFields.Item(n)).Orientation = xlColumnField
         Next
     End If
-    
+
     If (Not colFilterFields Is Nothing) Then
         For n = 1 To colFilterFields.Count
             pvt.PivotFields(colFilterFields.Item(n)).Orientation = xlPageField
         Next
     End If
-    
+
     If (Not colSumFields Is Nothing) Then
         For n = 1 To colSumFields.Count
             strOperation = Trim(UCase(Before(colSumFields.Item(n), "of")))
             strField = Trim(After(colSumFields.Item(n), "of"))
-            
+
             Select Case strOperation
                 Case "SUM":
                     func = xlSum
@@ -2666,34 +2696,64 @@ Function MakePivot(rngSrcData As Range, rngPivotDest As Range, strPivotName As S
                 Case Else
                     func = xlUnknown
             End Select
-            
+
             pvt.AddDataField pvt.PivotFields(strField), colSumFields.Item(n), func
         Next
-        
+
         ' Re-add fields as they get deleted for some reason after the AddDataField
-        If (Not colRowFields Is Nothing) Then
-            For n = 1 To colRowFields.Count
-                pvt.PivotFields(colRowFields.Item(n)).Orientation = xlRowField
-            Next
-        End If
-    
-        If (Not colColFields Is Nothing) Then
-            For n = 1 To colColFields.Count
-                pvt.PivotFields(colColFields.Item(n)).Orientation = xlColumnField
-            Next
-        End If
+'        If (Not colRowFields Is Nothing) Then
+'            For n = 1 To colRowFields.Count
+'                pvt.PivotFields(colRowFields.Item(n)).Orientation = xlRowField
+'            Next
+'        End If
+'
+'        If (Not colColFields Is Nothing) Then
+'            For n = 1 To colColFields.Count
+'                pvt.PivotFields(colColFields.Item(n)).Orientation = xlColumnField
+'            Next
+'        End If
     End If
     
     Set MakePivot = pvt
 End Function
 
 
-Sub SetPivotFilterValues(strPivotName As String, strFilterField As String, Optional wksPivot As Worksheet, Optional colSet As Collection, Optional etStatus As dsFilterSettings = dsOn)
+'Sub testSetPivotFilterFields()
+'    Dim test
+'    test = SetPivotFilterFields("pvtSummary", , True)
+'End Sub
+
+'Function SetPivotFilterFields(strPivotName As String, Optional colFilterFields As Collection, Optional bReplace As Boolean = False) As PivotTable
+'
+'    Dim wksPivot As Worksheet
+'    Dim pvt As PivotTable
+'    Dim fields As PivotFields
+'
+'    Set wksPivot = ActiveSheet
+'
+'    Set pvt = wksPivot.PivotTables(strPivotName)
+'    wksPivot.Activate
+'
+'    If (bReplace <> True) Then
+'        pvt.PivotFields.Clear
+'    End If
+'
+'    Set fields = pvt.PivotFields
+'
+'    If (Not colFilterFields Is Nothing) Then
+'        For n = 1 To colFilterFields.Count
+'            pvt.PivotFields(colFilterFields.Item(n)).Orientation = xlPageField
+'        Next
+'    End If
+'
+'End Function
+
+Function SetPivotFilterValues(strPivotName As String, strFilterField As String, Optional wksPivot As Worksheet, Optional colSet As Collection, Optional etStatus As dsFilterSettings = dsOn)
     Dim pvt As PivotTable
     Dim varValue As Variant
     Dim bVisible As Boolean
     Dim colRest As New Collection
-    Dim itmOne As PivotItem
+    Dim pivotItem As pivotItem
     Dim strValue As String
     Dim n As Integer
     
@@ -2740,11 +2800,19 @@ Sub SetPivotFilterValues(strPivotName As String, strFilterField As String, Optio
                             bVisible = Not .PivotItems(strValue).Visible
                     End Select
                     
-                    .PivotItems(strValue).Visible = bVisible
+                    If (strValue = "(blank)") Then
+                        Set pivotItem = .PivotItems.Item(.PivotItems.Count)
+                    Else
+                        Set pivotItem = .PivotItems(strValue)
+                        pivotItem.Visible = bVisible
+                    End If
+                    
                 Next
             End With
     End Select
-End Sub
+    
+    Set SetPivotFilterValues = pvt
+End Function
 
 
 
@@ -3078,12 +3146,12 @@ End Sub
 ' Example: RegExTest("this is a string","[A-Z]") returns False
 '          This searches for capital letters in a string
 Public Function RegExTest(ByRef source As String, _
-                          ByRef Test As String) As Boolean
+                          ByRef test As String) As Boolean
     Dim regex As Object
     Set regex = CreateObject("vbscript.regexp")
         
-    regex.Pattern = Test
-    RegExTest = regex.Test(source)
+    regex.Pattern = test
+    RegExTest = regex.test(source)
 End Function
 
 
@@ -3092,12 +3160,12 @@ End Function
 ' Example: RegExNumMatches("this is a string","\w+") returns 4
 '          The regular expression "\w+" counts words (one or more strings of consecutive letters)
 Public Function RegExNumMatches(ByRef source As String, _
-                                ByRef Test As String) As Integer
+                                ByRef test As String) As Integer
     Dim regex As Object
     
     Set regex = CreateObject("vbscript.regexp")
     
-    regex.Pattern = Test
+    regex.Pattern = test
     regex.Global = True
     
     Dim match As Object
@@ -3109,12 +3177,12 @@ End Function
 
 ' Returns a collection object containing all matches of regular expression test against source
 Function RegExSubmatches(ByRef source As String, _
-                         ByRef Test As String) As Object
+                         ByRef test As String) As Object
     Dim regex As Object
     Set regex = CreateObject("vbscript.regexp")
     
     With regex
-        .Pattern = Test
+        .Pattern = test
         .Global = True
     End With
     
@@ -3132,14 +3200,14 @@ End Function
 ' returns a regular expression object after comparing
 ' test to source
 Function RegExMatches(ByRef source As String, _
-                      ByRef Test As String) As Object
+                      ByRef test As String) As Object
     Dim regex As Object
     Dim match As Object
     
     Set regex = CreateObject("vbscript.regexp")
        
     With regex
-        .Pattern = Test
+        .Pattern = test
         .Global = True
     End With
     
@@ -3149,14 +3217,14 @@ End Function
 
 
 ' Returns the first regular expression match object of comparing regular express test to source
-Function RegExMatch(ByRef source As String, ByRef Test As String) As String
+Function RegExMatch(ByRef source As String, ByRef test As String) As String
     Dim regex As Object
     Dim match As Object
     
     Set regex = CreateObject("vbscript.regexp")
         
     With regex
-        .Pattern = Test
+        .Pattern = test
         .Global = True
     End With
     
@@ -3178,7 +3246,7 @@ End Function
 '
 ' Example: RegExValidate("chris gemignani","aeiou") returns "ieiai"
 Public Function RegExValidate(ByRef source As String, _
-                              ByRef Test As String) As String
+                              ByRef test As String) As String
 
     Dim s As String
     Dim regex As Object
@@ -3186,7 +3254,7 @@ Public Function RegExValidate(ByRef source As String, _
     Set regex = CreateObject("vbscript.regexp")
     
     With regex
-        .Pattern = Test
+        .Pattern = test
         .Global = True
     End With
     
