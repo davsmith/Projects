@@ -4,3 +4,11 @@
     Send "MI^+=2^+= "
 }
 
+^!i::
+{
+    SendMode("event")
+    SetKeyDelay 1000
+    Send "+{F10}"
+    ; Send "g"
+}
+
