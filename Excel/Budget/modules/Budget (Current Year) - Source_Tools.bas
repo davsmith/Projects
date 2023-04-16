@@ -2,6 +2,10 @@ Attribute VB_Name = "Tools"
 '****************************************
 '* Excel Macro Tools
 '*
+'* 4/15/2023:
+'*  - Fixed capitalization of property names
+'*  - Made its and comments to pivot table macros
+'*
 '* 3/26/2023:
 '*  - Checked in most up-to-date version of tools.bas
 '*  - Mostly capitalization changes, with a few bullets added under 12/9/2015
@@ -280,7 +284,7 @@ Function RenameSheet(FromSheet As String, ToSheet As String, Optional Displace A
     On Error Resume Next
         Sheets(FromSheet).name = ToSheet
         nError = Err.Number
-        sError = Err.description
+        sError = Err.Description
     On Error GoTo 0
     
     If (nError = 0) Then
@@ -470,6 +474,7 @@ End Sub
 ' [in]  strSheetName    The name of the worksheet to retrieve
 ' [in]  bCreate         Create the worksheet if it doesn't exist
 '
+' If no sheet name is specified, with bCreate a temporary name is generated
 '
 Function GetDataSheet(Optional strSheetName As String, Optional bCreate As Boolean = False)
     Dim aSheet As Worksheet
@@ -2629,20 +2634,20 @@ End Sub
 '****************
 
 '
-' MakePivot Macro
+Function MakePivot(rngSrcData As Range, rngPivotDest As Range, strPivotName As String, _
+                Optional colColFields As Collection, Optional colRowFields As Collection, _
+                Optional colFilterFields As Collection, Optional colSumFields As Collection) As PivotTable
 '
-
 ' Creates a new pivot table from the specified source in the destination
+'
 ' Row, column, and filter fields can be specified by adding the field names to the respective collection
 '  and passing to the MakePivot function
+'
 ' The value fields are also passed as a collection, but the operator must
 '  be part of the string (e.g. Sum or amount)
 '
 ' The function returns a reference to the new pivot table
-'
-Function MakePivot(rngSrcData As Range, rngPivotDest As Range, strPivotName As String, _
-                Optional colColFields As Collection, Optional colRowFields As Collection, _
-                Optional colFilterFields As Collection, Optional colSumFields As Collection) As PivotTable
+    
     Dim wksPivot As Worksheet
     Dim pvt As PivotTable
     Dim n As Integer
@@ -2663,24 +2668,28 @@ Function MakePivot(rngSrcData As Range, rngPivotDest As Range, strPivotName As S
     Set pvt = wksPivot.PivotTables(strPivotName)
     pvt.ClearTable
     
+    ' Add each of the rows specified in the colRowFields argument
     If (Not colRowFields Is Nothing) Then
         For n = 1 To colRowFields.Count
             pvt.PivotFields(colRowFields.Item(n)).Orientation = xlRowField
         Next
     End If
 
+    ' Add each of the columns specified in the colColFields argument
     If (Not colColFields Is Nothing) Then
         For n = 1 To colColFields.Count
             pvt.PivotFields(colColFields.Item(n)).Orientation = xlColumnField
         Next
     End If
 
+    ' Add each of the filters specified in the colFilterFields argument
     If (Not colFilterFields Is Nothing) Then
         For n = 1 To colFilterFields.Count
             pvt.PivotFields(colFilterFields.Item(n)).Orientation = xlPageField
         Next
     End If
 
+    ' Add each of the summary fields
     If (Not colSumFields Is Nothing) Then
         For n = 1 To colSumFields.Count
             strOperation = Trim(UCase(Before(colSumFields.Item(n), "of")))
@@ -2749,6 +2758,16 @@ End Function
 'End Function
 
 Function SetPivotFilterValues(strPivotName As String, strFilterField As String, Optional wksPivot As Worksheet, Optional colSet As Collection, Optional etStatus As dsFilterSettings = dsOn)
+    '
+    ' Sets/Clears the values of the filter fields in the specified pivot table via a collection (colSet)
+    '
+    ' [in] strPivotName     The string name of pivot table to set field values
+    ' [in] strFilterField   The field to set filter values
+    ' [in] wksPivot         The worksheet containing the pivot table to filter.  If not specified the active sheet is used.
+    ' [in] colSet           Collection of field values to set in the filter
+    ' [in] etStatus         Sets the values in colSet to On, Off, Toggle, Exclusive On or Exclusive Off
+    '
+    
     Dim pvt As PivotTable
     Dim varValue As Variant
     Dim bVisible As Boolean
@@ -2757,13 +2776,18 @@ Function SetPivotFilterValues(strPivotName As String, strFilterField As String, 
     Dim strValue As String
     Dim n As Integer
     
+    On Error GoTo CleanFail
+    
+    ' If the target worksheet isn't specified, use the active sheet
     If wksPivot Is Nothing Then
         Set wksPivot = ActiveSheet
     End If
     
+    ' Get the pivot table from the collection on the worksheet
     Set pvt = wksPivot.PivotTables(strPivotName)
     wksPivot.Activate
     
+    ' If no values are specified to set, use all values in the pivot
     If colSet Is Nothing Then
         Set colSet = New Collection
         For Each varValue In pvt.PivotFields(strFilterField).PivotItems
@@ -2771,21 +2795,45 @@ Function SetPivotFilterValues(strPivotName As String, strFilterField As String, 
         Next
     End If
     
+    
+    ' TEMP: Dump the list of PivotField names
+'    For Each varValue In pvt.PivotFields
+'        Debug.Print (varValue.name)
+'    Next
+    
+    ' Build a collection of all values that are not included in colSet (rest)
+    '   by building a collection of all values in the pivot and removing the values
+    '   in colSet
+    '
     For Each varValue In pvt.PivotFields(strFilterField).PivotItems
+        ' The if statement filters out ghost items which are in the pivot items but have no records
+        ' To get rid of the ghost items, use PivotTable Analyze | Options | Data
+        '    Set Number of items to retain to None
+        '
+'        If varValue.RecordCount > 0 Then
         colRest.Add varValue.name, varValue.name
+'        Else
+'            Debug.Print ("PivotItem " + varValue.name + " had no records.  Didn't add.")
+'        End If
     Next
     
     For Each varValue In colSet
         colRest.Remove varValue
     Next
     
+    ' Check/uncheck the values in the filter
     Select Case etStatus
+        ' Turn on the specified columns, and turn off the rest (Exclusive On)
         Case dsOnExclusive:
             SetPivotFilterValues strPivotName, strFilterField, wksPivot, colSet, dsOn
             SetPivotFilterValues strPivotName, strFilterField, wksPivot, colRest, dsOff
+            
+        ' Turn off the specified columns, and turn on the rest (Exclusive Off)
         Case dsOffExclusive
             SetPivotFilterValues strPivotName, strFilterField, wksPivot, colRest, dsOn
             SetPivotFilterValues strPivotName, strFilterField, wksPivot, colSet, dsOff
+        
+        ' On, Off, and Toggle (called recursively by exclusive on and exclusive off)
         Case Else:
             pvt.PivotFields(strFilterField).EnableMultiplePageItems = True
             With pvt.PivotFields(strFilterField)
@@ -2810,8 +2858,17 @@ Function SetPivotFilterValues(strPivotName As String, strFilterField As String, 
                 Next
             End With
     End Select
-    
+CleanExit:
     Set SetPivotFilterValues = pvt
+    Exit Function
+    
+CleanFail:
+    Select Case Err.Number
+        Case 1004:
+            Debug.Print ("Pivot field '" + strFilterField + "' does not exist.  Exiting function.")
+        Case Else:
+    End Select
+    Resume CleanExit
 End Function
 
 
@@ -2820,15 +2877,17 @@ End Function
 '    Collections
 ' *****************
 
+Sub ClearCollection(col As Collection)
 '
 ' Iterates through a collection removing all values
-'
-Sub ClearCollection(col As Collection)
+    ' TODO: Consider returning a new collection rather than deleting each member
+    
     Dim n As Long
     
     For n = 1 To col.Count
         col.Remove 1
     Next
+'    Set col = New Collection
 End Sub
 
 
