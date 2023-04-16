@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmButtons 
    Caption         =   "Macros"
    ClientHeight    =   3210
-   ClientLeft      =   75
-   ClientTop       =   255
-   ClientWidth     =   5235
+   ClientLeft      =   80
+   ClientTop       =   260
+   ClientWidth     =   5230
    OleObjectBlob   =   "Budget (Current Year) - Source_frmButtons.frx":0000
    ShowModal       =   0   'False
    StartUpPosition =   1  'CenterOwner
@@ -27,6 +27,9 @@ Private Sub btnClearAllFilter_Click()
 End Sub
 
 Private Sub rbExpenses_Click()
+    ' Runs when the Expenses radio button is
+    ' clicked or set to True
+    '
     setSummaryFilters getViewParameters
 End Sub
 
@@ -58,6 +61,9 @@ End Sub
 
 
 Private Function getViewParameters()
+    ' Encodes the state of the controls on the main form
+    ' into a string.
+    '
     Dim strParameters As String
     
     strParameters = ""
