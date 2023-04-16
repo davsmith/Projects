@@ -1,4 +1,6 @@
 Attribute VB_Name = "ExportTools"
+Option Explicit
+
 Sub main()
 ' This macro enumerates the open workbooks and exports the code modules and queries
 ' associated with each workbook.
@@ -8,9 +10,9 @@ Sub main()
 ' Revisions
 ' ---------------------------------------------------------------------------------------
 '  3/26/2023    Created by Dave Smith
+'  4/15/2023    Changed target path to the Temp directory for all workbooks
 '
 '
-
     Dim wb As Workbook
     Dim export_path As String
     
@@ -33,18 +35,10 @@ Sub ExportQueries(wb As Workbook, Optional ByVal export_path As String = "", Opt
     Dim n As Integer
     Dim current_date As Date
     
-    If export_path = "" Then
-        export_path = wb.path
-        
-        If IsOneDrivePath(export_path) Then
-            export_path = GetTempPath()
-        End If
-    End If
+    export_path = GetTempPath() + "\" + GetBaseName(wb.Name) + "\queries"
     
     current_date = Now
-    
-    export_path = export_path + "\queries"
-            
+                
     Set query_list = wb.Queries
     If query_list.Count > 0 Then
         n = FreeFile()
@@ -79,15 +73,7 @@ Sub ExportModules(wb As Workbook, Optional ByVal export_path As String = "")
     Dim export_name As String
     
     Set vbproj = wb.VBProject
-    If export_path = "" Then
-        export_path = wb.path
-        
-        If IsOneDrivePath(export_path) Then
-            export_path = GetTempPath()
-        End If
-    End If
-    
-    export_path = export_path + "\modules"
+    export_path = GetTempPath() + "\" + GetBaseName(wb.Name) + "\modules"
     
     For Each vbcomp In vbproj.VBComponents
         If (vbcomp.Type = vbext_ct_ClassModule) Or _
