@@ -1,4 +1,12 @@
 Attribute VB_Name = "ExportTools"
+Option Explicit
+
+' Set EXPORT_PATH to '' to export to %TEMP%
+' Public Const EXPORT_PATH = "C:\source\Projects\Excel"
+Public Const EXPORT_PATH = ""
+
+' BUGBUG: Retrieve the export path from a cell in the spreadsheet
+
 Sub main()
 ' This macro enumerates the open workbooks and exports the code modules and queries
 ' associated with each workbook.
@@ -8,22 +16,21 @@ Sub main()
 ' Revisions
 ' ---------------------------------------------------------------------------------------
 '  3/26/2023    Created by Dave Smith
+'  4/27/2023    Added debug lines to list exported files and path
+'               Added constant for EXPORT_PATH and fixed up variable names
+'               Rolled back changes to export all files to %TEMP%
 '
 '
-
     Dim wb As Workbook
-    Dim export_path As String
-    
-    export_path = ""
     
     For Each wb In Application.Workbooks
         Debug.Print ("*** Exporting macros and queries from " + wb.Name + " ***")
-        ExportModules wb, export_path
-        ExportQueries wb, export_path
+        ExportModules wb, EXPORT_PATH
+        ExportQueries wb, EXPORT_PATH
     Next
 End Sub
 
-Sub ExportQueries(wb As Workbook, Optional ByVal export_path As String = "", Optional create As Boolean = True)
+Sub ExportQueries(wb As Workbook, Optional ByVal szExportPath As String = "", Optional create As Boolean = True)
 '
 '   Enumerates and exports all power queries associated with the specified workbook
 '
@@ -32,24 +39,29 @@ Sub ExportQueries(wb As Workbook, Optional ByVal export_path As String = "", Opt
     Dim i As Integer
     Dim n As Integer
     Dim current_date As Date
+    Dim full_file_path As String
     
-    If export_path = "" Then
-        export_path = wb.path
+    If szExportPath = "" Then
+        szExportPath = wb.path
         
-        If IsOneDrivePath(export_path) Then
-            export_path = GetTempPath()
+        If IsOneDrivePath(szExportPath) Then
+            szExportPath = GetTempPath() + "\" + GetBaseName(wb.Name)
         End If
     End If
     
     current_date = Now
     
-    export_path = export_path + "\queries"
+    szExportPath = szExportPath + "\queries"
             
     Set query_list = wb.Queries
     If query_list.Count > 0 Then
         n = FreeFile()
-        CreateFolderPathEx (export_path)
-        Open export_path + "\" + GetBaseName(wb.Name) + "_queries.txt" For Output As #n
+        
+        full_file_path = szExportPath + "\" + GetBaseName(wb.Name) + "_queries.txt"
+        Debug.Print ("  " + full_file_path)
+        
+        CreateFolderPathEx (szExportPath)
+        Open full_file_path For Output As #n
         
         Print #n, "// Order of queries for " + wb.Name + " as of " + FormatDateTime(current_date, vbShortDate)
         Print #n, "//"
@@ -72,29 +84,29 @@ Sub ExportQueries(wb As Workbook, Optional ByVal export_path As String = "", Opt
 End Sub
 
 
-Sub ExportModules(wb As Workbook, Optional ByVal export_path As String = "")
+Sub ExportModules(wb As Workbook, Optional ByVal szExportPath As String = "")
     Dim vbproj As VBIDE.VBProject
     Dim vbcomp As VBIDE.VBComponent
     Dim ws As Worksheet
     Dim export_name As String
     
     Set vbproj = wb.VBProject
-    If export_path = "" Then
-        export_path = wb.path
+    If szExportPath = "" Then
+        szExportPath = wb.path
         
-        If IsOneDrivePath(export_path) Then
-            export_path = GetTempPath()
+        If IsOneDrivePath(szExportPath) Then
+            szExportPath = GetTempPath() + "\" + GetBaseName(wb.Name)
         End If
     End If
     
-    export_path = export_path + "\modules"
+    szExportPath = szExportPath + "\modules"
     
     For Each vbcomp In vbproj.VBComponents
         If (vbcomp.Type = vbext_ct_ClassModule) Or _
         (vbcomp.Type = vbext_ct_MSForm) Or _
         (vbcomp.Type = vbext_ct_StdModule) Then
             export_name = Left(wb.Name, InStr(wb.Name, ".") - 1) + "_" + vbcomp.Name
-            ExportVBComponent vbcomp, export_path, export_name
+            ExportVBComponent vbcomp, szExportPath, export_name
         End If
     Next vbcomp
 End Sub
@@ -156,6 +168,7 @@ Public Function ExportVBComponent(vbcomp As VBIDE.VBComponent, _
         End If
     End If
     
+    Debug.Print ("  " + FolderName + "\" + filename)
     CreateFolderPathEx (FolderName)
     vbcomp.Export filename:=FName
     ExportVBComponent = True
