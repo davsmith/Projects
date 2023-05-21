@@ -2,6 +2,9 @@ Attribute VB_Name = "Tools"
 '****************************************
 '* Excel Macro Tools (SoT)
 '*
+'* 5/17/2023:
+'*  - More capitalization shenanigans
+'*
 '* 4/15/2023:
 '*  - Fixed capitalization of property names
 '*  - Made its and comments to pivot table macros
@@ -266,7 +269,7 @@ Function RenameSheet(FromSheet As String, ToSheet As String, Optional Displace A
     Dim sError As String
     Dim nRenameCounter As Long
     Dim wks As Worksheet
-    
+        
     bRetVal = False
 
     If (Displace) Then
@@ -277,12 +280,12 @@ Function RenameSheet(FromSheet As String, ToSheet As String, Optional Displace A
                 Set wks = Sheets(ToSheet + "(" + CStr(nRenameCounter) + ")")
                 nRenameCounter = nRenameCounter + 1
             Wend
-            Sheets(ToSheet).Name = ToSheet + "(" + CStr(nRenameCounter - 1) + ")"
+            Sheets(ToSheet).name = ToSheet + "(" + CStr(nRenameCounter - 1) + ")"
         On Error GoTo 0
     End If
 
     On Error Resume Next
-        Sheets(FromSheet).Name = ToSheet
+        Sheets(FromSheet).name = ToSheet
         nError = Err.Number
         sError = Err.Description
     On Error GoTo 0
@@ -312,8 +315,8 @@ Sub PurgeTempSheets(Optional sPrefix As String = "TMP_")
     Dim n As Long
 
     For n = Sheets.Count To 1 Step -1
-        If (Left(Sheets(n).Name, Len(sPrefix)) = sPrefix) Then
-            Debug.Print ("Purging temporary sheet " + Sheets(n).Name)
+        If (Left(Sheets(n).name, Len(sPrefix)) = sPrefix) Then
+            Debug.Print ("Purging temporary sheet " + Sheets(n).name)
             Application.DisplayAlerts = False
             Sheets(n).Delete
             Application.DisplayAlerts = True
@@ -499,7 +502,7 @@ Function GetDataSheet(Optional strSheetName As String, Optional bCreate As Boole
         
         ' Add a new sheet, which activates it
         Set aSheet = Sheets.Add
-        aSheet.Name = strSheetName
+        aSheet.name = strSheetName
         
         ' Activate the previously active sheet if appropriate.
         If shtCurrentWorksheet.Visible = xlSheetVisible Then
@@ -859,7 +862,7 @@ Function ColumnFromHeading(ColHeading As Variant)
     
     Set rgHeader = Range("1:1")
     For i = 1 To ActiveSheet.UsedRange.Columns.Count
-        If rgHeader.Cells(1, i).Value = ColHeading Then
+        If rgHeader.Cells(1, i).value = ColHeading Then
             ColumnFromHeading = i
             Exit For
         End If
@@ -913,7 +916,7 @@ Function GetColumnByHeading(szHeading As String, Optional rngData As Range, Opti
             rngData.Cells(nRow, nInsertAt).EntireColumn.Insert (xlToRight)
             Set rngEnd = rngData.Cells(1, nInsertAt)
         End If
-        rngEnd.Cells(1, 1).Value = szHeading
+        rngEnd.Cells(1, 1).value = szHeading
         nColumn = rngEnd.Column
     End If
     
@@ -950,7 +953,7 @@ Function FindValueFromHeading(strColLabel As String, rngHeadings As Range, rngDa
     
     On Error Resume Next
     nResultCol = Application.WorksheetFunction.match(strColLabel, rngHeadings, 0)
-    FindValueFromHeading = rngDataRow.Cells(, nResultCol).Value
+    FindValueFromHeading = rngDataRow.Cells(, nResultCol).value
     On Error GoTo 0
 
 End Function
@@ -1021,7 +1024,7 @@ Sub FillZeros(rngFillRange As Range)
     
     For Each rCell In rngFillRange
         If (IsEmpty(rCell)) Then
-            rCell.Value = 0
+            rCell.value = 0
         End If
     Next
 End Sub
@@ -1037,7 +1040,7 @@ Dim t As Variant
     On Error Resume Next
     
     Err.Clear
-    t = obj.Value
+    t = obj.value
     If (Err <> 0) Then
         IsNothing = True
         Err.Clear
@@ -1066,7 +1069,7 @@ Sub AdjustDates(rngRange As Range, fHours As Double)
         For j = 1 To rngRange.Columns.Count
             Set cell = rngRange.Cells(i, j)
             If IsDate(cell) Then
-                cell.Value = cell.Value + (fHours / 24)
+                cell.value = cell.value + (fHours / 24)
             End If
         Next
     Next
@@ -1087,7 +1090,7 @@ Sub TruncateDates(rngRange As Range)
         For j = 1 To rngRange.Columns.Count
             Set cell = rngRange.Cells(i, j)
             If IsDate(cell) Then
-                cell.Value = Int(cell.Value)
+                cell.value = Int(cell.value)
             End If
         Next
     Next
@@ -1189,7 +1192,7 @@ Sub DeleteFileList(rngFileList As Range, Optional bDelDirs As Boolean = False)
     Set fso = CreateObject("Scripting.FileSystemObject")
     
     For Each cell In rngFileList
-        strFile = cell.Value
+        strFile = cell.value
         If fso.FolderExists(strFile) Then
             If bDelDirs Then
                 Debug.Print ("Deleting folder " + strFile)
@@ -1294,7 +1297,7 @@ End Sub
 ' Use GetTempFile to generate an empty temp file.
 '
 Function GetTempPath() As String
-    Dim fso As Scripting.FileSystemObject
+    Dim fso As scripting.FileSystemObject
     Dim strPath As String
     Dim nBufferSize As Long
     Dim nLen As Long
@@ -1314,7 +1317,7 @@ End Function
 ' for the current user, and returns the filename
 '
 Function GetTempFile() As String
-    Dim fso As Scripting.FileSystemObject
+    Dim fso As scripting.FileSystemObject
     Dim strPath As String
     Dim strFile As String
     Dim nBufferSize As Long
@@ -1535,7 +1538,7 @@ End Function
 Sub GetUniqueItems(szUnique() As String, rngToSearch As Range, _
                     Optional strDelimiter As String = "_:_")
     Dim cell As Range
-    Dim dic As Scripting.Dictionary
+    Dim dic As scripting.dictionary
     Dim dicItem As Variant
     Dim strUnique() As String
     Dim nNumItems As Long
@@ -1549,7 +1552,7 @@ Sub GetUniqueItems(szUnique() As String, rngToSearch As Range, _
     End If
 
     ' Create dictionay object
-    Set dic = New Scripting.Dictionary
+    Set dic = New scripting.dictionary
 
     ' Populate dictionary object with unique items
     nNumColumns = rngToSearch.Columns.Count
@@ -1562,7 +1565,7 @@ Sub GetUniqueItems(szUnique() As String, rngToSearch As Range, _
         strSearchVal = ""
         For j = 1 To nNumColumns
             If Not IsEmpty(cell) Then
-                strSearchVal = strSearchVal + strDelimiter + CStr(cell.Offset(0, j - 1).Value)
+                strSearchVal = strSearchVal + strDelimiter + CStr(cell.Offset(0, j - 1).value)
             End If
         Next
     
@@ -1620,7 +1623,7 @@ Function Interpolate(rngData As Range, nInterval As Integer) As Double
         nRetVal = 0#
     Else
         nRangesize = Application.WorksheetFunction.max(rngData.Rows.Count, rngData.Columns.Count)               ' Figure out the number of cells in the range
-        nIncrement = (rngData(rngData.Rows.Count, rngData.Columns.Count).Value - rngData(1, 1)) / nRangesize    ' Calculate the increment to provide a linear progression
+        nIncrement = (rngData(rngData.Rows.Count, rngData.Columns.Count).value - rngData(1, 1)) / nRangesize    ' Calculate the increment to provide a linear progression
         nRetVal = rngData(1, 1) + (nInterval * nIncrement)                                                      ' Return the next value in the seriesw
     End If
     
@@ -1661,13 +1664,13 @@ Sub InterpolateSelectedColumn()
     ' Calculate the increment
     nNumRows = nEndRow - nStartRow
     
-    nFirstVal = rng.Cells(1, 1).Value
-    nLastVal = rng.Cells(rng.Rows.Count, 1).Value
+    nFirstVal = rng.Cells(1, 1).value
+    nLastVal = rng.Cells(rng.Rows.Count, 1).value
     fIncrement = (nLastVal - nFirstVal) / (nNumRows)
     
     Set rngCell = rng.Cells(1, 1).Offset(1, 0)
     While rngCell.Row < nEndRow
-        rngCell.Value = rngCell.Offset(-1, 0) + fIncrement
+        rngCell.value = rngCell.Offset(-1, 0) + fIncrement
         Set rngCell = rngCell.Offset(1, 0)
     Wend
 End Sub
@@ -1737,9 +1740,9 @@ Attribute SplitOnSemicolon.VB_ProcData.VB_Invoke_Func = "w\n14"
     Dim i As Long
     Dim strTokens() As String
     
-    n = Tokenize(ActiveCell.Value, ";", strTokens)
+    n = Tokenize(ActiveCell.value, ";", strTokens)
     For i = 1 To n
-        ActiveCell.Offset(i, 0).Value = strTokens(i)
+        ActiveCell.Offset(i, 0).value = strTokens(i)
     Next
 End Sub
 
@@ -2422,7 +2425,7 @@ End Function
 '   Microsoft Internet Controls library (ieframe.dll)
 '
 '
-Sub test()
+Sub Test()
     Dim strFile As String
     Dim strURL As String
     Dim strText As String
@@ -2632,11 +2635,30 @@ End Sub
 '****************
 '  Pivot Tables
 '****************
+Function PivotExists(strName As String, Optional ByRef ws As Worksheet = Nothing) As Boolean
+    Dim pt As PivotTable
+    Dim bReturn As Boolean
+    
+    bReturn = False
+    
+    If ws Is Nothing Then
+    End If
+    
+    For Each pt In ws.PivotTables
+        If pt.name = strName Then
+            bReturn = True
+            Set ws = pt.Parent
+            Exit For
+        End If
+    Next
+    
+    PivotExists = bReturn
+End Function
 
 '
 Function MakePivot(rngSrcData As Range, rngPivotDest As Range, strPivotName As String, _
                 Optional colColFields As Collection, Optional colRowFields As Collection, _
-                Optional colFilterFields As Collection, Optional colSumFields As Collection) As PivotTable
+                Optional colFilterFields As Collection, Optional colSumFields As Collection, Optional pc As PivotCache) As PivotTable
 '
 ' Creates a new pivot table from the specified source in the destination
 '
@@ -2654,19 +2676,30 @@ Function MakePivot(rngSrcData As Range, rngPivotDest As Range, strPivotName As S
     Dim strOperation As String
     Dim strField As String
     Dim func As XlConsolidationFunction
+    Dim bPivotExists As Boolean
     
     Set wksPivot = rngPivotDest.Worksheet
+    
+    ' If no pivot cache is specified by the caller, create a new one
+    If pc Is Nothing Then
+        Set pc = ThisWorkbook.PivotCaches.Create(SourceType:=xlDatabase, _
+            SourceData:=rngSrcData, _
+            version:=xlPivotTableVersion15)
+    End If
+    
     ' Turn off error checking in case the pivot already exists
-    On Error Resume Next
-    ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:=rngSrcData, _
-        version:=xlPivotTableVersion12).CreatePivotTable _
-        TableDestination:=rngPivotDest, TableName:=strPivotName, DefaultVersion _
-        :=xlPivotTableVersion12
-    On Error GoTo 0
+    bPivotExists = PivotExists(strPivotName, wksPivot)
+    If bPivotExists Then
+        Set pvt = wksPivot.PivotTables(strPivotName)
+    Else
+        Set pvt = pc.CreatePivotTable( _
+            TableDestination:=rngPivotDest, _
+            TableName:=strPivotName)
+    End If
     
     ' Clear out all fields, filters, etc (only relevant if pivot already existed)
-    Set pvt = wksPivot.PivotTables(strPivotName)
-    pvt.ClearTable
+'    Set pvt = wksPivot.PivotTables(strPivotName)
+'    pvt.ClearTable
     
     ' Add each of the rows specified in the colRowFields argument
     If (Not colRowFields Is Nothing) Then
@@ -2791,7 +2824,7 @@ Function SetPivotFilterValues(strPivotName As String, strFilterField As String, 
     If colSet Is Nothing Then
         Set colSet = New Collection
         For Each varValue In pvt.PivotFields(strFilterField).PivotItems
-            colSet.Add varValue.Name
+            colSet.Add varValue.name
         Next
     End If
     
@@ -2810,11 +2843,7 @@ Function SetPivotFilterValues(strPivotName As String, strFilterField As String, 
         ' To get rid of the ghost items, use PivotTable Analyze | Options | Data
         '    Set Number of items to retain to None
         '
-'        If varValue.RecordCount > 0 Then
         colRest.Add varValue.name, varValue.name
-'        Else
-'            Debug.Print ("PivotItem " + varValue.name + " had no records.  Didn't add.")
-'        End If
     Next
     
     For Each varValue In colSet
@@ -2852,8 +2881,8 @@ Function SetPivotFilterValues(strPivotName As String, strFilterField As String, 
                         Set pivotItem = .PivotItems.Item(.PivotItems.Count)
                     Else
                         Set pivotItem = .PivotItems(strValue)
-                        pivotItem.Visible = bVisible
                     End If
+                    pivotItem.Visible = bVisible
                     
                 Next
             End With
@@ -2973,7 +3002,7 @@ End Function
 ' Iterates through the list of names, purging those starting with a tmp prefix
 Sub PurgeTempNames()
    For Each nmName In Names
-      If (Left(nmName.Name, 3) = "tmp") Then
+      If (Left(nmName.name, 3) = "tmp") Then
          nmName.Delete
       End If
    Next
@@ -2983,11 +3012,11 @@ End Sub
 ' Checks if the specified name is defined
 Function NameExists(strName As String) As Boolean
    Dim bRetVal As Boolean
-   Dim nm As Name
+   Dim nm As Range
    
    On Error Resume Next
-   Set nm = Names(strName)
-   If (Err.Number = 0) Then
+   Set nm = Range(strName)
+   If Err.Number = 0 Then
       bRetVal = True
    Else
       bRetVal = False
@@ -3014,7 +3043,7 @@ Function ReadIniFileString(strSection As String, strKeyname As String, Optional 
     
     nNumChars = 0
     If (strIniFile = "") Then
-        strIniFile = ThisWorkbook.path + "\" + ThisWorkbook.Name + ".ini"
+        strIniFile = ThisWorkbook.path + "\" + ThisWorkbook.name + ".ini"
     End If
         
     If (strSection = "" Or strKeyname = "") Then
@@ -3044,7 +3073,7 @@ Function WriteIniFileString(strSection As String, strKeyname As String, strValue
     
     nNumChars = 0
     If (strIniFile = "") Then
-        strIniFile = ThisWorkbook.path + "\" + ThisWorkbook.Name + ".ini"
+        strIniFile = ThisWorkbook.path + "\" + ThisWorkbook.name + ".ini"
     End If
         
     If (strSection = "" Or strKeyname = "") Then
@@ -3158,7 +3187,7 @@ Sub ExportGPXFile(rng As Range, strFilename As String)
     Dim nNotesCol As Long
     Dim nRowOffset As Long
     
-    strListName = rng.Worksheet.Name
+    strListName = rng.Worksheet.name
     nLatCol = GetColumnByHeading("Latitude", rng)
     nLonCol = GetColumnByHeading("Longitude", rng)
     nNameCol = GetColumnByHeading("Name", rng)
@@ -3205,12 +3234,12 @@ End Sub
 ' Example: RegExTest("this is a string","[A-Z]") returns False
 '          This searches for capital letters in a string
 Public Function RegExTest(ByRef source As String, _
-                          ByRef test As String) As Boolean
+                          ByRef Test As String) As Boolean
     Dim regex As Object
     Set regex = CreateObject("vbscript.regexp")
         
-    regex.Pattern = test
-    RegExTest = regex.test(source)
+    regex.Pattern = Test
+    RegExTest = regex.Test(source)
 End Function
 
 
@@ -3219,12 +3248,12 @@ End Function
 ' Example: RegExNumMatches("this is a string","\w+") returns 4
 '          The regular expression "\w+" counts words (one or more strings of consecutive letters)
 Public Function RegExNumMatches(ByRef source As String, _
-                                ByRef test As String) As Integer
+                                ByRef Test As String) As Integer
     Dim regex As Object
     
     Set regex = CreateObject("vbscript.regexp")
     
-    regex.Pattern = test
+    regex.Pattern = Test
     regex.Global = True
     
     Dim match As Object
@@ -3236,12 +3265,12 @@ End Function
 
 ' Returns a collection object containing all matches of regular expression test against source
 Function RegExSubmatches(ByRef source As String, _
-                         ByRef test As String) As Object
+                         ByRef Test As String) As Object
     Dim regex As Object
     Set regex = CreateObject("vbscript.regexp")
     
     With regex
-        .Pattern = test
+        .Pattern = Test
         .Global = True
     End With
     
@@ -3259,14 +3288,14 @@ End Function
 ' returns a regular expression object after comparing
 ' test to source
 Function RegExMatches(ByRef source As String, _
-                      ByRef test As String) As Object
+                      ByRef Test As String) As Object
     Dim regex As Object
     Dim match As Object
     
     Set regex = CreateObject("vbscript.regexp")
        
     With regex
-        .Pattern = test
+        .Pattern = Test
         .Global = True
     End With
     
@@ -3276,14 +3305,14 @@ End Function
 
 
 ' Returns the first regular expression match object of comparing regular express test to source
-Function RegExMatch(ByRef source As String, ByRef test As String) As String
+Function RegExMatch(ByRef source As String, ByRef Test As String) As String
     Dim regex As Object
     Dim match As Object
     
     Set regex = CreateObject("vbscript.regexp")
         
     With regex
-        .Pattern = test
+        .Pattern = Test
         .Global = True
     End With
     
@@ -3305,7 +3334,7 @@ End Function
 '
 ' Example: RegExValidate("chris gemignani","aeiou") returns "ieiai"
 Public Function RegExValidate(ByRef source As String, _
-                              ByRef test As String) As String
+                              ByRef Test As String) As String
 
     Dim s As String
     Dim regex As Object
@@ -3313,7 +3342,7 @@ Public Function RegExValidate(ByRef source As String, _
     Set regex = CreateObject("vbscript.regexp")
     
     With regex
-        .Pattern = test
+        .Pattern = Test
         .Global = True
     End With
     
@@ -3471,8 +3500,6 @@ End Function
 '********************
 ' Performance Timing
 '********************
-' http://en.allexperts.com/q/Excel-1059/time-milliseconds.htm
-' http://support.microsoft.com/?kbid=172338
 
 Function MicroTimer() As Currency
     Static curCounterStart As Currency, curCounterEnd As Currency, curFreq As Currency
@@ -3489,14 +3516,6 @@ Function MicroTimer() As Currency
         QueryPerformanceCounter curCounterStart
         MicroTimer = 0
     End If
-End Function
-
-
-Function MicroTimerEx(Optional strAction As String = "DELTA") As Currency
-    Static Ctr1 As Currency, Ctr2 As Currency, Freq As Currency
-    Static Overhead As Currency, a As Long, i As Long
-    
-
 End Function
 
 
@@ -3754,7 +3773,6 @@ End Sub
 '
 '    DeleteModule = bRetVal
 'End Function
-
 
 
 
