@@ -12,25 +12,24 @@
 ###### Heading 6
 
 <!-- New line -->
-To separate lines without an additional linespace, end the line with two spaces and \<enter> or \<br>.
+To separate lines without an additional lines pace, end the line with two spaces and \<enter> or \<br>.
 Like this.  
 Also, the **the backslash (\\)** can be used as an escape character  
 And this should be indented
 <!-- Italics -->
 *This text* is italic  
-_This text_ is also italic
+<!-- An underscore may also be used to demarcate italic text, but the linter will complain -->
 
 <!-- Strong -->
 **This text** is strong (bold)  
-__This text__ is also strong (bold)
+<!-- Two underscores may also be used to demarcate bold text, but the linter will complain -->
 
-<!-- Strikethrough -->
-~~This text~~ is strikethrough
+<!-- Strike through -->
+~~This text~~ is strike through
 
 <!-- Horizontal Rule -->
 
 ---
-___
 
 <!-- Blockquote -->
 > Single line quote
@@ -82,11 +81,19 @@ ___
     return num1 + num2
 ```
 
+``` js
+const count = records.length;
+```
+
+``` csharp
+Console.WriteLine("Hello, World!");
+```
+
 <!-- Tables -->
 | Name     | Email          |Right Justified|Center|
 | -------- | -------------- |--------------:|:----:|
-| John Doe | john@gmail.com |Notes 1|Text 1|
-| Jane Doe | jane@gmail.com |Notes 2|Text 2|
+| John Doe | <john@gmail.com> |Notes 1|Text 1|
+| Jane Doe | <jane@gmail.com> |Notes 2|Text 2|
 
 <!-- Task List -->
 * [x] Task 1
@@ -94,12 +101,13 @@ ___
 * [ ] Task 3
 
 # HTML Elements
+
 The MarkDown linter doesn't appreciate HTML elements, but some are handy  
 
 <font color="red">Red text</font> for example  
 <font color="blue">Blue text</font> is also sometimes handy
 
-<p>This text needs <del>strikethrough</del> and this text should be <ins>underlined</ins>
+<p>This text needs <del>strike through</del> and this text should be <ins>underlined</ins>
 <p><tt>This text is teletype text.</tt></p>
 <center>This text is center-aligned.</center>
 <p>This text contains <sup>superscript</sup> text.</p>
@@ -117,31 +125,17 @@ This is a normal line of text.  Nothing special.
   1. A numbered
   2. list
      * With some
-     * Sub bullets
+     * Sub bullets  
+
 </details>
 
 [Jump to a Section Title](#blibbit)
 
-# Code Blocks
-``` json
-Code line 1
-Code line 2 -- There is `more code on this line`
-Code line 3
-```
-
-``` js
-const count = records.length;
-```
-
-``` csharp
-Console.WriteLine("Hello, World!");
-```
-
 # Symbols
+
 $
 \alpha, \beta, \gamma, \delta, \epsilon, \zeta, \eta, \theta, \kappa, \lambda, \mu, \nu, \omicron, \pi, \rho, \sigma, \tau, \upsilon, \phi, ...
 $  
-
 
 $\Gamma,  \Delta,  \Theta, \Lambda, \Xi, \Pi, \Sigma, \Upsilon, \Phi, \Psi, \Omega$
 <br><br><br>
@@ -157,7 +151,6 @@ gantt
     A task          :a1, 2022-03-012, 7d
     Another task    :after a1 , 5d
 :::
-
 
 <a id="blibbit"></a>  
 This should have an anchor  
